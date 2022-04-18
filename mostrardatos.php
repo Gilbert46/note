@@ -10,11 +10,17 @@
 	// caracters especials per php
 	header('Content-Type: text/html; charset=UTF-8');
 	// rebre dades dels camps d'entrada del formulari
-	$nif = $_REQUEST['nif'] ?? null;
-	$nombre = $_REQUEST['nombre'] ?? null;
-	$apellidos =  $_REQUEST['apellidos'] ?? null;
-	$email = $_REQUEST['email'] ?? null;
-	$nota = $_REQUEST['nota'] ?? '';
+	$nif = trim($_REQUEST['nif']) ?? null;
+	$dni = substr($nif, 0, 8);
+	if (is_numeric($dni)) $letraN = $dni%23;
+	$letra = substr($nif, 8, 1);
+	$letters = "TRWAGMYFPDXBNJZSQVHLCKET";
+	if (is_numeric($dni)) $letter = substr($letters, $letraN, 1);
+	//print($letra."  ==  ".$letter);
+	$nombre = trim($_REQUEST['nombre']) ?? null;
+	$apellidos =  trim($_REQUEST['apellidos']) ?? null;
+	$email = trim($_REQUEST['email']) ?? null;
+	$nota = trim($_REQUEST['nota']) ?? '';
 	$mensaje = $_REQUEST['mensaje'] ?? null;
 	// variable string dels erros en els camps del formulari no vàlids o buits
 	$errors= null;
@@ -30,6 +36,13 @@
 		if (!$nif = filter_input(INPUT_POST, 'nif')) {
 			$errors .= "El camp nif és obligatori.</br><style>.dni {border: 2px solid red;}</style>";
 		}
+		else if (!is_numeric($dni)){
+			$errors .= "El camp nif no té els digits correctes.</br><style>.dni {border: 2px solid red;}</style>";
+		}
+		else if ($letra != $letter) {
+			$errors .= "El camp nif és erroni.</br><style>.dni {border: 2px solid red;}</style>";
+		}
+
 		if (!$nombre = filter_input(INPUT_POST, 'nombre')) {
 			$errors .= "El camp nom és obligatori.</br><style>.nom {border: 2px solid red;}</style>";
 		}
@@ -66,10 +79,10 @@
 	<div class='container'>
 		<h1 class='centrar'>MOSTRAR NOTA D'EXÀMEN</h1>
 		<div class='card'> 
-			<input type="text" class ="dni" placeholder="nif" disabled value='<?php if (!empty($nif)) echo "$nif" ?>'><br><br>
-			<input type="text" class = "nom" placeholder="nom" disabled value='<?php if (!empty($nombre)) echo " $nombre" ?>'>
-			<input type="text" class = "cognom" placeholder="cognoms" disabled value='<?php if (!empty($apellidos)) echo " $apellidos" ?>'><br><br>
-			<input type="text" class = "nota" placeholder="qualificació" disabled value='<?php if(!empty($notaFinal)) echo " $notaFinal amb $nota" ?>'>
+			<input type="text" class ="dni" placeholder="nif" disabled value='<?php if (!empty($nif)) echo trim($nif) ?>'><br><br>
+			<input type="text" class = "nom" placeholder="nom" disabled value='<?php if (!empty($nombre)) echo " ".trim($nombre) ?>'>
+			<input type="text" class = "cognom" placeholder="cognoms" disabled value='<?php if (!empty($apellidos)) echo " ".trim($apellidos) ?>'><br><br>
+			<input type="text" class = "nota" placeholder="qualificació" disabled value='<?php if(!empty($notaFinal)) echo " ".trim($notaFinal)." amb ".$nota ?>'>
 			<div class="box">
 				<!--aqui iran las cajitas <aside></aside>-->
 				<?php
@@ -87,7 +100,7 @@
 				<!-- final dels aside -->
 			</div>
 			<br><br>
-			<input type="text" class = "email" placeholder="email" disabled value='<?php if (!empty($email)) echo " $email" ?>'><br><br>
+			<input type="text" class = "email" placeholder="email" disabled value='<?php if (!empty($email)) echo " ".trim($email) ?>'><br><br>
 			<textarea  class = "msg" cols='22' rows='5' disabled><?php if (!empty($mensaje)) echo " $mensaje" ?></textarea>
 			<p class = "errores"><?php if (!empty($errors)) echo $errors; ?></p>
 		</div>
